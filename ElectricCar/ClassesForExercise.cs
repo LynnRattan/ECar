@@ -9,13 +9,13 @@ namespace ElectricCar
 {
     public class Battery
     {
-        public event EventHandler ReachThreshold;
-        public event EventHandler ShutDown;
       
         const int MAX_CAPACITY = 1000;
         private static Random r = new Random();
         //Add events to the class to notify upon threshhold reached and shut down!
         #region events
+         public event EventHandler ReachThreshold;
+        public event EventHandler ShutDown;
         #endregion
         private int Threshold { get; }
         public int Capacity { get; set; }
@@ -41,11 +41,14 @@ namespace ElectricCar
             }
             #region Fire Events
             #endregion
+            
         }
         private void OnLowBatery()
         {
             ReachThreshold?.Invoke(this, new EventArgs());
         }
+
+       
 
 
     
@@ -58,16 +61,16 @@ namespace ElectricCar
         private int id;
 
         //Add event to notify when the car is shut down
-
+        public event EventHandler OnShutDown;
 
         public ElectricCar(int id)
         { 
             this.id = id;
             Bat = new Battery();
             #region Register to battery events
-            Bat.ReachThreshold += LowBateryMessege;
+            Bat.ReachThreshold += LowBatteryMessage;
             #endregion
-
+            this.OnShutDown += OnShutDownMessage;
         }
         public void StartEngine()
         {
@@ -76,14 +79,27 @@ namespace ElectricCar
                 Console.WriteLine($"{this} {Bat.Percent}% Thread: {Thread.CurrentThread.ManagedThreadId}");
                 Thread.Sleep(1000);
                 Bat.Usage();
+                
             }
+            ShutDown();
         }
+
+        private void ShutDown()
+        {
+           OnShutDown?.Invoke(this, new EventArgs());
+        }
+
 
         //Add code to Define and implement the battery event implementations
         #region events implementation
-        public void LowBateryMessege(object sender, EventArgs e)
+        public void LowBatteryMessage(object sender, EventArgs e)
         {
             Console.WriteLine("low batery");
+        }
+
+        public void OnShutDownMessage(object sender, EventArgs e)
+        {
+            Console.WriteLine("Shut down");
         }
         #endregion
 
